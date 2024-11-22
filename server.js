@@ -2,32 +2,15 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const axios = require("axios");
+const { authenticate } = require("./middlewares");
 
 const app = express();
 const port = process.env.PORT;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME;
 const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
-const API_BEARER_TOKEN = process.env.API_BEARER_TOKEN;
 
 app.use(bodyParser.json());
-
-const authenticate = (req, res, next) => {
-	const authHeader = req.headers.authorization;
-
-	if (!authHeader || !authHeader.startsWith("Bearer ")) {
-		return res
-			.status(401)
-			.json({ error: "Unauthorized: Missing or invalid token" });
-	}
-
-	const token = authHeader.split(" ")[1];
-	if (token !== API_BEARER_TOKEN) {
-		return res.status(403).json({ error: "Forbidden: Invalid token" });
-	}
-
-	next();
-};
 
 app.post("/checkin", authenticate, async (req, res) => {
 	console.log("Body:", req.body);
@@ -71,6 +54,10 @@ app.post("/checkin", authenticate, async (req, res) => {
 			.status(500)
 			.json({ status: "Error", error: "Failed to save data to Airtable" });
 	}
+});
+
+app.get("/", (req, res) => {
+	res.send("Crecimiento API: ON");
 });
 
 app.listen(port, () => {
