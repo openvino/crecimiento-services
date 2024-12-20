@@ -9,6 +9,8 @@ const port = process.env.PORT;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const AIRTABLE_TABLE_NAME = process.env.AIRTABLE_TABLE_NAME;
 const AIRTABLE_ACCESS_TOKEN = process.env.AIRTABLE_ACCESS_TOKEN;
+const DOOR_0 = process.env.CRECIMIENTO_DOOR_0;
+const DOOR_1 = process.env.CRECIMIENTO_DOOR_1;
 
 app.use(bodyParser.json());
 
@@ -58,6 +60,27 @@ app.post("/checkin", authenticate, async (req, res) => {
 
 app.get("/", (req, res) => {
 	res.send("Crecimiento API: ON");
+});
+
+app.get("/door-0", async (req, res) => {
+	try {
+		const doorResponse = await axios.post(DOOR_0, { state: "open" });
+		console.log("Door 0 response:", doorResponse.data);
+
+		res.status(200).send("Door 0 opened");
+	} catch (error) {
+		res.status(500).send("Error opening door 0");
+	}
+});
+app.get("/door-1", async (req, res) => {
+	try {
+		const doorResponse = await axios.post(DOOR_1, { state: "open" });
+		console.log("Door 1 response:", doorResponse.data);
+
+		res.status(200).send("Door 1 opened");
+	} catch (error) {
+		res.status(500).send("Error opening door 1");
+	}
 });
 
 app.listen(port, () => {
